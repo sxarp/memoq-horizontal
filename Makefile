@@ -3,8 +3,8 @@ GOCMD=go
 GOTEST=$(GOCMD) test
 
 test:
-	$(GOTEST) -v ./...
+	$(GOTEST) -v -cover ./...
 
 # usage: $ make unit -d=app/hoge
 unit:
-	$(GOTEST) -v ./$(d)
+	$(GOTEST) -v -cover ./$(d)
