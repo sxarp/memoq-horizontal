@@ -1,3 +1,3 @@
 #!/bin/bash
 
-ln -s $PWD/app vendor/app
+# do something before executing CI steps.
