@@ -11,6 +11,9 @@ jobs: # basic units of work in a run
     steps: # steps that comprise the `build` job
       - checkout # check out source code to working directory
       - run: dev_tools/setup.sh
+      - run:
+          name: lint
+          command: "! go fmt ./... 2>&1 | read"
 
       - restore_cache: # restores saved cache if no changes are detected since last run
           keys:
