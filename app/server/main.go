@@ -2,11 +2,26 @@ package main
 
 import "fmt"
 
-func Adder(x, y int) int {
-	return x + y
+import (
+	"net/http"
+)
+
+func index(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hi!")
 }
 
 func main() {
-	fmt.Println("hello world")
 
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/", index)
+
+	server := &http.Server{
+		Addr:    "0.0.0.0:8080",
+		Handler: mux,
+	}
+
+	fmt.Println("started server")
+
+	server.ListenAndServe()
 }
