@@ -8,16 +8,17 @@ import (
 )
 
 func TestIndex(t *testing.T) {
+	srv := server{
+		router: http.NewServeMux(),
+	}
 
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("/", index)
+	srv.routes()
 
 	writer := httptest.NewRecorder()
 
 	request, _ := http.NewRequest("GET", "/", strings.NewReader(""))
 
-	mux.ServeHTTP(writer, request)
+	srv.ServeHTTP(writer, request)
 
 	if code := writer.Code; code != 200 {
 		t.Errorf("response code = %v != 200", code)
