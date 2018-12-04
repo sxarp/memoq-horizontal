@@ -8,3 +8,6 @@ test:
 # usage: $ make unit -d=app/hoge
 unit:
 	$(GOTEST) -v -cover ./$(d)
+
+build:
+	$(GOCMD) build -o dist/server ./app/server

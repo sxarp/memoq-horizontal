@@ -5,22 +5,32 @@ import (
 	"net/http"
 )
 
-func index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hi!")
+type server struct {
+	router *http.ServeMux
+}
+
+func (s *server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	s.router.ServeHTTP(writer, request)
+}
+
+func (s *server) listen(port int) {
+	server := &http.Server{
+		Addr:    fmt.Sprintf("0.0.0.0:%v", port),
+		Handler: s.router,
+	}
+
+	fmt.Println("server started at port: ", port)
+
+	server.ListenAndServe()
 }
 
 func main() {
 
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("/", index)
-
-	server := &http.Server{
-		Addr:    "0.0.0.0:8080",
-		Handler: mux,
+	srv := server{
+		router: http.NewServeMux(),
 	}
 
-	fmt.Println("started server")
+	srv.routes()
 
-	server.ListenAndServe()
+	srv.listen(8080)
 }
