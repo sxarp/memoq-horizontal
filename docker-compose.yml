@@ -1,0 +1,7 @@
+version: '2'
+
+services:
+  datastore_emulator:
+    build: docker_files/datastore_emulator
+    ports:
+      - 8081:8081
