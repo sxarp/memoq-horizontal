@@ -48,8 +48,8 @@ jobs: # basic units of work in a run
           paths:
             - /go/bin
 
-#      - restore_cache: # restores saved cache if no changes are detected since last run
-#          keys: Gopkg-{ checksum "Gopkg.lock" }}
+      - restore_cache: # restores saved cache if no changes are detected since last run
+          key: Gopkg-{ checksum "Gopkg.lock" }}
 
       - run:
           name: dep
@@ -57,10 +57,10 @@ jobs: # basic units of work in a run
             dep status
             dep ensure
 
-#      - save_cache:
-#          keys: Gopkg-{ checksum "Gopkg.lock" }}
-#          paths:
-#            - "vendor"
+      - save_cache:
+          key: Gopkg-{ checksum "Gopkg.lock" }}
+          paths:
+            - "vendor"
 
       - run:
           name: Run unit tests
