@@ -1,15 +1,24 @@
 version: 2 # use CircleCI 2.0
+
+references:
+  - datastore_image: &datastore_image
+      image: gcr.io/memoq-backend/datastore-emulator:v1
+      auth:
+        username: _json_key
+        password: $GOOGLE_AUTH
+
 jobs: # basic units of work in a run
   build: # runs not using Workflows must have a `build` job as entry point
     docker: # run the steps with Docker
       # CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/
       - image: circleci/golang:1.11 #
       # CircleCI PostgreSQL images available at: https://hub.docker.com/r/circleci/postgres/
+      - *datastore_image
     # directory where steps are run. Path must conform to the Go Workspace requirements
     working_directory: /go/src/github.com/sxarp/memoq-horizontal
     environment:
       - DEP_VERSION: 0.5.0
-      - DATASTORE_EMULATOR_HOST: localhost:8432
+      - DATASTORE_EMULATOR_HOST: localhost:8081
       - DATASTORE_PROJECT_ID: my-project-id
 
     steps: # steps that comprise the `build` job
