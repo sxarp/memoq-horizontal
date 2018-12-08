@@ -24,6 +24,10 @@ jobs: # basic units of work in a run
       #- run: go get github.com/lib/pq
 
       - run:
+          name: dep
+          command: dep ensure
+
+      - run:
           name: Run unit tests
           command: make test
 
