@@ -1,8 +1,8 @@
-version: 2 # use CircleCI 2.0
+version: 2.1
 
 references:
   - go_gcloud_image: &go_gcloud_image
-      image: gcr.io/memoq-backend/go-gcloud:v1 # docker_files/go_gcloud/Dockerfile
+      image: gcr.io/memoq-backend/go-gcloud:2.0 # docker_files/go_gcloud/Dockerfile
       auth:
         username: _json_key
         password: $GOOGLE_AUTH
@@ -13,57 +13,76 @@ references:
         username: _json_key
         password: $GOOGLE_AUTH
 
-jobs:
-  build:
+executors:
+  default:
+    docker:
+      - *go_gcloud_image
+    working_directory: /go/src/github.com/sxarp/memoq-horizontal
+    environment:
+      - EXAMPLE: exmaple
+  for_tests:
     docker:
       - *go_gcloud_image
       - *datastore_image
     working_directory: /go/src/github.com/sxarp/memoq-horizontal
-    environment:
-      - DEP_VERSION: 0.5.0
 
+commands:
+  restore_code:
+    steps:
+      - restore_cache:
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+  restore_dependencies:
+    steps:
+      - restore_cache:
+          key: Gopkg-{ checksum "Gopkg.lock" }}
+
+jobs:
+  checkout_code:
+    executor: default
     steps:
       - checkout
-      - run: dev_tools/setup.sh
       - run:
           name: lint
           command: "! go fmt ./... 2>&1 | read"
-
-      - run:
-          name: save dep version
-          command: echo $DEP_VERSION > dep_version
-      - run:
-          # This step is necessary to restore the cache, see https://discuss.circleci.com/t/unable-to-restore-bundle-from-cache-using-circleci-ruby-docker-images/24249/6
-          name: chmod go/bin
-          command: |
-            sudo chown $(whoami) -R $GOPATH
-      - restore_cache:
-          key: dep-{{ checksum "dep_version" }}
-      - run:
-          name: install dep
-          command: |
-            [ -z "$(command -v dep)" ] && curl -L -s https://github.com/golang/dep/releases/download/v${DEP_VERSION}/dep-linux-amd64 -o $GOPATH/bin/dep
-            chmod +x $GOPATH/bin/dep
       - save_cache:
-          key: dep-{{ checksum "dep_version" }}
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
           paths:
-            - /go/bin
+            - ./
 
-      - restore_cache: # restores saved cache if no changes are detected since last run
-          key: Gopkg-{ checksum "Gopkg.lock" }}
-
+  build_dependencies:
+    executor: default
+    steps:
+      - restore_code
+      - restore_dependencies
       - run:
           name: dep
           command: |
             dep status
-            dep ensure
-
+            # dep ensure
       - save_cache:
           key: Gopkg-{ checksum "Gopkg.lock" }}
           paths:
             - "vendor"
 
+  test:
+    executor: for_tests
+    steps:
+      - restore_code
+      - restore_dependencies
+
+      - run: dev_tools/setup.sh
       - run:
           name: Run unit tests
           command: make test
 
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - checkout_code
+      - build_dependencies:
+          requires:
+            - checkout_code
+      - test:
+          requires:
+            - build_dependencies
