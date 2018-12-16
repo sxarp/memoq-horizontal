@@ -2,7 +2,7 @@ version: 2.1
 
 references:
   - go_gcloud_image: &go_gcloud_image
-      image: gcr.io/memoq-backend/go-gcloud:v1 # docker_files/go_gcloud/Dockerfile
+      image: gcr.io/memoq-backend/go-gcloud:2.0 # docker_files/go_gcloud/Dockerfile
       auth:
         username: _json_key
         password: $GOOGLE_AUTH
@@ -19,14 +19,12 @@ executors:
       - *go_gcloud_image
     working_directory: /go/src/github.com/sxarp/memoq-horizontal
     environment:
-      - DEP_VERSION: 0.5.0
+      - EXAMPLE: exmaple
   for_tests:
     docker:
       - *go_gcloud_image
       - *datastore_image
     working_directory: /go/src/github.com/sxarp/memoq-horizontal
-    environment:
-      - DEP_VERSION: 0.5.0
 
 commands:
   restore_code:
@@ -51,26 +49,6 @@ jobs:
     steps:
       - restore_code
       - run: dev_tools/setup.sh
-      - run:
-          name: save dep version
-          command: echo $DEP_VERSION > dep_version
-      - run:
-          # This step is necessary to restore the cache, see https://discuss.circleci.com/t/unable-to-restore-bundle-from-cache-using-circleci-ruby-docker-images/24249/6
-          name: chmod go/bin
-          command: |
-            sudo chown $(whoami) -R $GOPATH
-      - restore_cache:
-          key: dep-{{ checksum "dep_version" }}
-      - run:
-          name: install dep
-          command: |
-            [ -z "$(command -v dep)" ] && curl -L -s https://github.com/golang/dep/releases/download/v${DEP_VERSION}/dep-linux-amd64 -o $GOPATH/bin/dep
-            chmod +x $GOPATH/bin/dep
-      - save_cache:
-          key: dep-{{ checksum "dep_version" }}
-          paths:
-            - /go/bin
-
       - restore_cache: # restores saved cache if no changes are detected since last run
           key: Gopkg-{ checksum "Gopkg.lock" }}
 
