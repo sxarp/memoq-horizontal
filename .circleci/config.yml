@@ -1,4 +1,4 @@
-version: 2.1 # use CircleCI 2.0
+version: 2.1
 
 references:
   - go_gcloud_image: &go_gcloud_image
