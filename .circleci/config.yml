@@ -75,6 +75,17 @@ jobs:
           name: Run unit tests
           command: make test
 
+  build_image:
+    executor: default
+    steps:
+      - restore_code
+      - restore_dependencies
+      - run:
+          name: build image
+          command: |
+            hash=$(git rev-parse HEAD)
+            gcloud builds submit --config .circleci/cloudbuild.yml --substitutions=TAG_NAME=$hash .
+
 workflows:
   version: 2
   build_and_deploy:
@@ -84,5 +95,9 @@ workflows:
           requires:
             - checkout_code
       - test:
+          requires:
+            - build_dependencies
+
+      - build_image:
           requires:
             - build_dependencies
