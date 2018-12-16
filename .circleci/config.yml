@@ -106,7 +106,10 @@ workflows:
       - test:
           requires:
             - build_dependencies
-
+      - hold_build_image:
+          type: approval
+          requires:
+            - test
       - build_image:
           requires:
-            - build_dependencies
+            - hold_build_image
