@@ -87,6 +87,9 @@ jobs:
             gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
             gcloud config set project $PROJECT_NAME
       - run:
+          name: purge .gitignore
+          command: rm .gitignore # To send vendor/ to cloudbuild.
+      - run:
           name: build image
           command: |
             hash=$(git rev-parse HEAD)
