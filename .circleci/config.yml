@@ -39,6 +39,9 @@ jobs:
     executor: default
     steps:
       - checkout
+      - run:
+          name: lint
+          command: "! go fmt ./... 2>&1 | read"
       - save_cache:
           key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
           paths:
@@ -48,9 +51,6 @@ jobs:
     steps:
       - restore_code
       - run: dev_tools/setup.sh
-      - run:
-          name: lint
-          command: "! go fmt ./... 2>&1 | read"
       - run:
           name: save dep version
           command: echo $DEP_VERSION > dep_version
