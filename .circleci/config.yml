@@ -19,7 +19,7 @@ executors:
       - *go_gcloud_image
     working_directory: /go/src/github.com/sxarp/memoq-horizontal
     environment:
-      - EXAMPLE: exmaple
+      - PROJECT_NAME: memoq-backend
   for_tests:
     docker:
       - *go_gcloud_image
@@ -80,6 +80,12 @@ jobs:
     steps:
       - restore_code
       - restore_dependencies
+      - run:
+          name: setup gcloud
+          command: |
+            echo $GOOGLE_AUTH > ${HOME}/gcloud-service-key.json
+            gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
+            gcloud config set project $PROJECT_NAME
       - run:
           name: build image
           command: |
