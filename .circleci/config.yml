@@ -31,6 +31,10 @@ commands:
     steps:
       - restore_cache:
           key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+  restore_dependencies:
+    steps:
+      - restore_cache:
+          key: Gopkg-{ checksum "Gopkg.lock" }}
 
 jobs:
   checkout_code:
@@ -44,25 +48,29 @@ jobs:
           key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
           paths:
             - ./
-  build:
-    executor: for_tests
+
+  build_dependencies:
+    executor: default
     steps:
       - restore_code
-      - run: dev_tools/setup.sh
-      - restore_cache: # restores saved cache if no changes are detected since last run
-          key: Gopkg-{ checksum "Gopkg.lock" }}
-
+      - restore_dependencies
       - run:
           name: dep
           command: |
             dep status
             dep ensure
-
       - save_cache:
           key: Gopkg-{ checksum "Gopkg.lock" }}
           paths:
             - "vendor"
 
+  test:
+    executor: for_tests
+    steps:
+      - restore_code
+      - restore_dependencies
+
+      - run: dev_tools/setup.sh
       - run:
           name: Run unit tests
           command: make test
@@ -72,6 +80,9 @@ workflows:
   build_and_deploy:
     jobs:
       - checkout_code
-      - build:
+      - build_dependencies:
           requires:
             - checkout_code
+      - test:
+          requires:
+            - build_dependencies
