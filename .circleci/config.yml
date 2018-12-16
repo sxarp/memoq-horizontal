@@ -58,7 +58,7 @@ jobs:
           name: dep
           command: |
             dep status
-            dep ensure
+            # dep ensure
       - save_cache:
           key: Gopkg-{ checksum "Gopkg.lock" }}
           paths:
