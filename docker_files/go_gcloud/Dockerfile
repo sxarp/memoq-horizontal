@@ -1,6 +1,5 @@
-# version: 2.0
+# version: 3.0
 ARG GO_VERSION=1.11
-
 
 FROM circleci/golang:${GO_VERSION}
 
@@ -17,3 +16,6 @@ RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key
 
 # install dep
 RUN DEP_VERSION=0.5.0; sudo curl -L -s "https://github.com/golang/dep/releases/download/v${DEP_VERSION}/dep-linux-amd64" -o /bin/dep; sudo chmod +x /bin/dep
+
+# install helm
+RUN curl https://raw.githubusercontent.com/helm/helm/master/scripts/get | bash
