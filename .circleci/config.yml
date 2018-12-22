@@ -20,6 +20,8 @@ executors:
     working_directory: /go/src/github.com/sxarp/memoq-horizontal
     environment:
       - PROJECT_NAME: memoq-backend
+      - ZONE: asia-northeast1-c
+      - CLUSTER: resources-v2-my-cluster
   for_tests:
     docker:
       - *go_gcloud_image
@@ -54,7 +56,7 @@ commands:
       - run:
           name: setup helm and kubectl
           command: |
-            gcloud container clusters get-credentials resources-v2-my-cluster --zone asia-northeast1-c
+            gcloud container clusters get-credentials $CLUSTER --zone $ZONE
             namespace=<< parameters.name_space >>
             kubectl config set-context $(kubectl config current-context) --namespace=$namespace
             helm init --client-only
