@@ -45,6 +45,7 @@ commands:
       - run:
           name: setup helm and kubectl
           command: |
+            gcloud container clusters get-credentials resources-v2-my-cluster --zone asia-northeast1-c
             namespace=<< parameters.name_space >>
             kubectl config set-context $(kubectl config current-context) --namespace=$namespace
             helm init --client-only
