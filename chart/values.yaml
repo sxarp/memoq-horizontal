@@ -3,5 +3,10 @@ name: "horizontal"
 service:
   port: 80
 
+replicaCount: 1
+
 image:
-  port: 80
+  port: 8080
+  repository: gcr.io/memoq-backend/horizontal
+  tag: latest
+  pullPolicy: IfNotPresent
