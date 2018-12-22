@@ -1,0 +1,7 @@
+name: "horizontal"
+
+service:
+  port: 80
+
+image:
+  port: 80
