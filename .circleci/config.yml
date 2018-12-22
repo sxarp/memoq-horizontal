@@ -144,7 +144,7 @@ workflows:
             - test
       - build_image:
           requires:
-            - build_dependencies
+            - hold_build_image
       - deploy_development:
           requires:
             - build_image
