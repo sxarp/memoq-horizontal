@@ -35,6 +35,14 @@ commands:
     steps:
       - restore_cache:
           key: Gopkg-{ checksum "Gopkg.lock" }}
+  setup_gcloud:
+    steps:
+      - run:
+          name: setup gcloud
+          command: |
+            echo $GOOGLE_AUTH > ${HOME}/gcloud-service-key.json
+            gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
+            gcloud config set project $PROJECT_NAME
   deploy:
     description: "Apply chart to update pods with the builded image."
     parameters:
@@ -42,6 +50,7 @@ commands:
         type: string
         default: "development"
     steps:
+      - setup_gcloud
       - run:
           name: setup helm and kubectl
           command: |
