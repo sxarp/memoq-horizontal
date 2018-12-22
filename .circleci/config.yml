@@ -104,12 +104,7 @@ jobs:
     steps:
       - restore_code
       - restore_dependencies
-      - run:
-          name: setup gcloud
-          command: |
-            echo $GOOGLE_AUTH > ${HOME}/gcloud-service-key.json
-            gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
-            gcloud config set project $PROJECT_NAME
+      - setup_gcloud
       - run:
           name: purge .gitignore
           command: rm .gitignore # To send vendor/ to cloudbuild.
