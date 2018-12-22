@@ -2,7 +2,7 @@ version: 2.1
 
 references:
   - go_gcloud_image: &go_gcloud_image
-      image: gcr.io/memoq-backend/go-gcloud:2.0 # docker_files/go_gcloud/Dockerfile
+      image: gcr.io/memoq-backend/go-gcloud:3.0 # docker_files/go_gcloud/Dockerfile
       auth:
         username: _json_key
         password: $GOOGLE_AUTH
