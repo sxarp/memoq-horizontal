@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type server struct {
-	router *http.ServeMux
+	router *mux.Router
 }
 
 func (s *server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
@@ -27,7 +29,7 @@ func (s *server) listen(port int) {
 func main() {
 
 	srv := server{
-		router: http.NewServeMux(),
+		router: mux.NewRouter(),
 	}
 
 	srv.routes()
