@@ -1,12 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/gorilla/mux"
@@ -34,16 +34,19 @@ func genSrv() (srv *server) {
 }
 
 func TestSimpleCreate(t *testing.T) {
-
-	mapBody := map[string]string{
-		"hoge": "fuga",
+	type input struct {
+		Name string `json:"name"`
 	}
 
-	fmt.Println("run tests!")
+	name := "test"
+
+	mapBody := &input{
+		Name: name,
+	}
 
 	body, _ := json.Marshal(mapBody)
 
-	res := reqRes(genSrv(), "POST", "/simple/create", bytes.NewReader(body))
+	res := reqRes(genSrv(), "POST", "/simple/create", strings.NewReader(string(body)))
 
 	fmt.Println(res.Code)
 
@@ -51,5 +54,9 @@ func TestSimpleCreate(t *testing.T) {
 
 	if code := res.Code; code != 200 {
 		t.Errorf("response code = %v != 200", code)
+	}
+
+	if body := res.Body.String(); body != name {
+		t.Errorf("expected %v, got %v", name, body)
 	}
 }
