@@ -8,12 +8,9 @@ import (
 	"cloud.google.com/go/datastore"
 )
 
-type Entity struct {
-	Value string
-}
-
 type DStore struct {
 	prj     string
+	kind    string
 	timeout int
 	client  datastore.Client
 }
@@ -25,7 +22,7 @@ func (d *DStore) ctxCan() (context.Context, context.CancelFunc) {
 	return ctx, cancel
 }
 
-func NewDStore(prj string, timeout int) DStore {
+func NewDStore(prj, kind string, timeout int) DStore {
 
 	client, err := datastore.NewClient(context.Background(), prj)
 
@@ -33,7 +30,31 @@ func NewDStore(prj string, timeout int) DStore {
 		panic("Failed to create DataStore client.")
 	}
 
-	return DStore{prj: prj, timeout: timeout, client: *client}
+	return DStore{prj: prj, timeout: timeout, client: *client, kind: kind}
+}
+
+func (d *DStore) key(key string) *datastore.Key {
+	return datastore.NameKey(d.kind, key, nil)
+}
+
+func (d *DStore) Get(key string, container interface{}) error {
+	ctx, cancel := d.ctxCan()
+	defer cancel()
+
+	return d.client.Get(ctx, d.key(key), container)
+}
+
+func (d *DStore) Put(key string, container interface{}) (interface{}, error) {
+	ctx, cancel := d.ctxCan()
+	defer cancel()
+
+	ret, err := d.client.Put(ctx, d.key(key), container)
+
+	return ret, err
+}
+
+type Entity struct {
+	Value string
 }
 
 func UpdateEntity(inputValue string) string {
