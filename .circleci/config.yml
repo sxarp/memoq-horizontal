@@ -36,7 +36,8 @@ commands:
   restore_dependencies:
     steps:
       - restore_cache:
-          key: Gopkg-{ checksum "Gopkg.lock" }}
+          key: Gopkg-{{ checksum "Gopkg.lock" }}
+
   setup_gcloud:
     steps:
       - run:
@@ -91,7 +92,7 @@ jobs:
             dep status
             dep ensure
       - save_cache:
-          key: Gopkg-{ checksum "Gopkg.lock" }}
+          key: Gopkg-{{ checksum "Gopkg.lock" }}
           paths:
             - "vendor"
 

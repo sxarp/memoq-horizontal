@@ -5,18 +5,20 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/gorilla/mux"
 )
 
 func TestIndex(t *testing.T) {
 	srv := server{
-		router: http.NewServeMux(),
+		router: mux.NewRouter(),
 	}
 
 	srv.routes()
 
 	writer := httptest.NewRecorder()
 
-	request, _ := http.NewRequest("GET", "/", strings.NewReader(""))
+	request, _ := http.NewRequest("GET", "/test/index", strings.NewReader(""))
 
 	srv.ServeHTTP(writer, request)
 
