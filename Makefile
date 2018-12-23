@@ -13,7 +13,10 @@ test:
 unit:
 	DATASTORE_EMULATOR_HOST=$(DATASTORE_EMULATOR_HOST) \
 	DATASTORE_PROJECT_ID=$(DATASTORE_PROJECT_ID) \
-	$(GOTEST) -v -cover -count=1 -run $(f) ./$(d) # usage: $ make unit -f=LileFuncName -d=app/hoge
+	$(GOTEST) -v -cover -count=1 -run $(f) ./$(d) # $ make unit -f=LileFuncName -d=app/hoge
 
 build:
-	$(GOCMD) build -o dist/server ./app/server
+	$(GOCMD) build -o dest/server ./app/server
+
+run:
+	$(GOCMD) run $$(ls -1 $(d) | grep -v _test | awk '{print "'$(d)'/"$$1}') # $ make run d=app/server
