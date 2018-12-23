@@ -2,8 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -12,11 +10,15 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func reqRes(srv *server, method, path string, body io.Reader) *httptest.ResponseRecorder {
+func reqRes(srv *server, method, path, body string) *httptest.ResponseRecorder {
 
 	writer := httptest.NewRecorder()
 
-	request, _ := http.NewRequest(method, path, body)
+	request, err := http.NewRequest(method, path, strings.NewReader(body))
+
+	if err != nil {
+		panic(err)
+	}
 
 	srv.ServeHTTP(writer, request)
 
@@ -33,6 +35,12 @@ func genSrv() (srv *server) {
 	return
 }
 
+func genJson(str interface{}) string {
+	body, _ := json.Marshal(str)
+
+	return string(body)
+}
+
 func TestSimpleCreate(t *testing.T) {
 	type input struct {
 		Name string `json:"name"`
@@ -40,17 +48,13 @@ func TestSimpleCreate(t *testing.T) {
 
 	name := "test"
 
-	mapBody := &input{
+	inputBody := &input{
 		Name: name,
 	}
 
-	body, _ := json.Marshal(mapBody)
+	body := genJson(inputBody)
 
-	res := reqRes(genSrv(), "POST", "/simple/create", strings.NewReader(string(body)))
-
-	fmt.Println(res.Code)
-
-	fmt.Println(res.Body)
+	res := reqRes(genSrv(), "POST", "/simple/create", body)
 
 	if code := res.Code; code != 200 {
 		t.Errorf("response code = %v != 200", code)
