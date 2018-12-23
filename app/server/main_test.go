@@ -16,7 +16,7 @@ func TestIndex(t *testing.T) {
 
 	writer := httptest.NewRecorder()
 
-	request, _ := http.NewRequest("GET", "/", strings.NewReader(""))
+	request, _ := http.NewRequest("GET", "/test/index", strings.NewReader(""))
 
 	srv.ServeHTTP(writer, request)
 
