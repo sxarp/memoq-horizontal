@@ -87,3 +87,16 @@ func (d *DStore) Delete(key *datastore.Key) error {
 
 	return d.client.Delete(ctx, key)
 }
+
+func (d *DStore) NewQuery() *datastore.Query {
+	return datastore.NewQuery(d.kind)
+}
+
+func (d *DStore) GetAll(q *datastore.Query, dst interface{}) ([]*datastore.Key, error) {
+	ctx, cancel := d.ctxCan()
+	defer cancel()
+
+	keys, err := d.client.GetAll(ctx, q, dst)
+
+	return keys, err
+}

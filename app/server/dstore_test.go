@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -153,4 +154,45 @@ func TestCheckKey(t *testing.T) {
 	}()
 
 	dA.checkKey(dB.NameKey("hoge"))
+}
+
+func TestQuery(t *testing.T) {
+	prj := "test"
+	timeout := 500
+	kind := "kind"
+	d := NewDStore(prj, kind, timeout)
+	defer RefreshDStore(&d)
+
+	type Ent struct {
+		Name string
+		Age  int
+	}
+
+	createNum := 27
+
+	for i := 0; i < createNum; i++ {
+		cont := &Ent{Name: fmt.Sprintf("name %d", i)}
+		if _, err := d.Create(cont); err != nil {
+			t.Errorf("Failed to create: %s.", err)
+		}
+	}
+
+	q := d.NewQuery().KeysOnly()
+
+	if keys, err := d.GetAll(q, nil); err != nil {
+		t.Errorf("Failed to GetAll: %s.", err)
+	} else if len(keys) == 0 { // Datasotre only offers eventual consistency.
+		t.Errorf("Expected non zero length.")
+	}
+
+	fetchNum := 5
+	q = d.NewQuery().Limit(fetchNum)
+	dst := []Ent{}
+
+	if _, err := d.GetAll(q, &dst); err != nil {
+		t.Errorf("Failed to GetAll: %s.", err)
+
+	} else if length := len(dst); length != fetchNum {
+		t.Errorf("Expected length is %d, got %d.", fetchNum, length)
+	}
 }
