@@ -1,8 +1,26 @@
 package main
 
 import (
+	"context"
 	"testing"
+	"time"
+
+	"cloud.google.com/go/datastore"
 )
+
+func RefreshDStore(d *DStore) {
+	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(ctx, 5000*time.Millisecond)
+	defer cancel()
+
+	client, _ := datastore.NewClient(context.Background(), d.prj)
+
+	q := datastore.NewQuery(d.kind).KeysOnly()
+
+	keys, _ := client.GetAll(ctx, q, nil)
+
+	client.DeleteMulti(ctx, keys)
+}
 
 func TestCtxCan(t *testing.T) {
 	d := DStore{timeout: 100}
@@ -37,6 +55,7 @@ func TestPutGet(t *testing.T) {
 	timeout := 100
 
 	d := NewDStore(prj, kind, timeout)
+	defer RefreshDStore(&d)
 
 	type Ent struct {
 		Name string
@@ -64,6 +83,7 @@ func TestPutGet(t *testing.T) {
 		t.Errorf("Expected the putted values, got %+v.", cont)
 
 	}
+
 }
 
 func TestCreateDelete(t *testing.T) {
@@ -72,6 +92,7 @@ func TestCreateDelete(t *testing.T) {
 	timeout := 100
 
 	d := NewDStore(prj, kind, timeout)
+	defer RefreshDStore(&d)
 
 	type Ent struct {
 		Name string
@@ -110,7 +131,9 @@ func TestCheckKey(t *testing.T) {
 	timeout := 100
 
 	dA := NewDStore(prj, "kindA", timeout)
+	defer RefreshDStore(&dA)
 	dB := NewDStore(prj, "kindB", timeout)
+	defer RefreshDStore(&dB)
 
 	defer func() {
 		if r := recover(); r == nil {
