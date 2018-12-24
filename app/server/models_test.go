@@ -17,9 +17,13 @@ func RefreshDStore(d *DStore) {
 
 	q := datastore.NewQuery(d.kind).KeysOnly()
 
-	keys, _ := client.GetAll(ctx, q, nil)
+	if keys, err := client.GetAll(ctx, q, nil); err != nil {
+		panic("Failed to GetAll.")
 
-	client.DeleteMulti(ctx, keys)
+	} else {
+		client.DeleteMulti(ctx, keys)
+	}
+
 }
 
 func TestCtxCan(t *testing.T) {
@@ -52,7 +56,7 @@ func TestNewDStore(t *testing.T) {
 func TestPutGet(t *testing.T) {
 	prj := "test"
 	kind := "kind"
-	timeout := 100
+	timeout := 1000
 
 	d := NewDStore(prj, kind, timeout)
 	defer RefreshDStore(&d)
