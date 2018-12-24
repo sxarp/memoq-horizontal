@@ -4,14 +4,6 @@ import (
 	"testing"
 )
 
-func TestBasicDBOperaions(t *testing.T) {
-	inputValue := "hoge"
-
-	if res := UpdateEntity(inputValue); res != inputValue {
-		t.Errorf("Expected %s, got %s.", inputValue, res)
-	}
-}
-
 func TestCtxCan(t *testing.T) {
 	d := DStore{timeout: 100}
 
@@ -31,11 +23,11 @@ func TestNewDStore(t *testing.T) {
 	d := NewDStore(prj, kind, timeout)
 
 	if d.prj != prj {
-		t.Errorf("Expected %s, got %s", prj, d.prj)
+		t.Errorf("Expected %s, got %s.", prj, d.prj)
 	}
 
 	if d.timeout != timeout {
-		t.Errorf("Expected %d, got %d", timeout, d.timeout)
+		t.Errorf("Expected %d, got %d.", timeout, d.timeout)
 	}
 }
 
@@ -53,7 +45,7 @@ func TestPutGet(t *testing.T) {
 
 	cont := &Ent{}
 	if d.Get(d.NameKey("foo"), cont); cont.Name != "" || cont.Age != 0 {
-		t.Errorf("Expected null values, got %+v", cont)
+		t.Errorf("Expected null values, got %+v.", cont)
 
 	}
 
@@ -63,13 +55,13 @@ func TestPutGet(t *testing.T) {
 
 	cont = &Ent{Age: age, Name: name}
 	if d.Put(d.NameKey(key), cont); cont.Name != name || cont.Age != age {
-		t.Errorf("Expected the same values, got %+v", cont)
+		t.Errorf("Expected the same values, got %+v.", cont)
 
 	}
 
 	cont = &Ent{}
 	if d.Get(d.NameKey(key), cont); cont.Name != name || cont.Age != age {
-		t.Errorf("Expected the putted values, got %+v", cont)
+		t.Errorf("Expected the putted values, got %+v.", cont)
 
 	}
 }
@@ -93,13 +85,13 @@ func TestCreateDelete(t *testing.T) {
 	key, err := d.Create(cont)
 
 	if err != nil {
-		t.Errorf("Got error : %+v", err)
+		t.Errorf("Got error: %+v.", err)
 
 	}
 
 	cont = &Ent{}
 	if d.Get(key, cont); cont.Name != name || cont.Age != age {
-		t.Errorf("expected the putted values, got %+v", cont)
+		t.Errorf("Expected the putted values, got %+v.", cont)
 
 	}
 
@@ -107,7 +99,7 @@ func TestCreateDelete(t *testing.T) {
 
 	cont = &Ent{}
 	if d.Get(key, cont); cont.Name != "" || cont.Age != 0 {
-		t.Errorf("expected null values, got %+v", cont)
+		t.Errorf("Expected null values, got %+v.", cont)
 
 	}
 
