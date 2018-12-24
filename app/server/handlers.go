@@ -25,21 +25,3 @@ func (s *server) handleIndex() http.HandlerFunc {
 		fmt.Fprintf(w, "Hi!")
 	}
 }
-
-func (s *server) simpleCreate() http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		r := &Request{req}
-
-		type input struct {
-			Name string `json:"name"`
-		}
-
-		var body input
-
-		r.JsonBody(&body)
-
-		fmt.Println(body.Name)
-
-		fmt.Fprintf(w, body.Name)
-	}
-}
