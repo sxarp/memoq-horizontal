@@ -33,24 +33,59 @@ func NewDStore(prj, kind string, timeout int) DStore {
 	return DStore{prj: prj, timeout: timeout, client: *client, kind: kind}
 }
 
-func (d *DStore) key(key string) *datastore.Key {
+func (d *DStore) NameKey(key string) *datastore.Key {
 	return datastore.NameKey(d.kind, key, nil)
 }
 
-func (d *DStore) Get(key string, container interface{}) error {
-	ctx, cancel := d.ctxCan()
-	defer cancel()
+func (d *DStore) checkKey(key *datastore.Key) {
+	if key.Kind != d.kind {
+		panic(fmt.Sprintf("Wrong kind of key specified, got %s, expected %s.", key.Kind, d.kind))
 
-	return d.client.Get(ctx, d.key(key), container)
+	}
 }
 
-func (d *DStore) Put(key string, container interface{}) (interface{}, error) {
+//func (d *DStore) IDKey(id int64) *datastore.Key {
+//return datastore.IDKey(d.kind, id, nil)
+//}
+
+func (d *DStore) Get(key *datastore.Key, container interface{}) error {
+	d.checkKey(key)
+
 	ctx, cancel := d.ctxCan()
 	defer cancel()
 
-	ret, err := d.client.Put(ctx, d.key(key), container)
+	return d.client.Get(ctx, key, container)
+}
 
-	return ret, err
+func (d *DStore) Put(key *datastore.Key, container interface{}) (*datastore.Key, error) {
+	d.checkKey(key)
+
+	ctx, cancel := d.ctxCan()
+	defer cancel()
+
+	key, err := d.client.Put(ctx, key, container)
+
+	return key, err
+}
+
+func (d *DStore) Create(container interface{}) (*datastore.Key, error) {
+	ctx, cancel := d.ctxCan()
+	defer cancel()
+
+	newKey := datastore.IncompleteKey(d.kind, nil)
+
+	key, err := d.client.Put(ctx, newKey, container)
+
+	return key, err
+}
+
+func (d *DStore) Delete(key *datastore.Key) error {
+	d.checkKey(key)
+
+	ctx, cancel := d.ctxCan()
+	defer cancel()
+
+	return d.client.Delete(ctx, key)
 }
 
 type Entity struct {

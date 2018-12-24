@@ -52,7 +52,7 @@ func TestPutGet(t *testing.T) {
 	}
 
 	cont := &Ent{}
-	if d.Get("foo", cont); cont.Name != "" || cont.Age != 0 {
+	if d.Get(d.NameKey("foo"), cont); cont.Name != "" || cont.Age != 0 {
 		t.Errorf("Expected null values, got %+v", cont)
 
 	}
@@ -62,14 +62,69 @@ func TestPutGet(t *testing.T) {
 	name := "Sophie"
 
 	cont = &Ent{Age: age, Name: name}
-	if d.Put(key, cont); cont.Name != name || cont.Age != age {
+	if d.Put(d.NameKey(key), cont); cont.Name != name || cont.Age != age {
 		t.Errorf("Expected the same values, got %+v", cont)
 
 	}
 
 	cont = &Ent{}
-	if d.Get(key, cont); cont.Name != name || cont.Age != age {
+	if d.Get(d.NameKey(key), cont); cont.Name != name || cont.Age != age {
 		t.Errorf("Expected the putted values, got %+v", cont)
 
 	}
+}
+
+func TestCreateDelete(t *testing.T) {
+	prj := "test"
+	kind := "kind"
+	timeout := 100
+
+	d := NewDStore(prj, kind, timeout)
+
+	type Ent struct {
+		Name string
+		Age  int
+	}
+
+	age := 450
+	name := "Ellie"
+	cont := &Ent{Age: age, Name: name}
+
+	key, err := d.Create(cont)
+
+	if err != nil {
+		t.Errorf("Got error : %+v", err)
+
+	}
+
+	cont = &Ent{}
+	if d.Get(key, cont); cont.Name != name || cont.Age != age {
+		t.Errorf("expected the putted values, got %+v", cont)
+
+	}
+
+	d.Delete(key)
+
+	cont = &Ent{}
+	if d.Get(key, cont); cont.Name != "" || cont.Age != 0 {
+		t.Errorf("expected null values, got %+v", cont)
+
+	}
+
+}
+
+func TestCheckKey(t *testing.T) {
+	prj := "test"
+	timeout := 100
+
+	dA := NewDStore(prj, "kindA", timeout)
+	dB := NewDStore(prj, "kindB", timeout)
+
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Expected to raise panic, got nothing.")
+		}
+	}()
+
+	dA.checkKey(dB.NameKey("hoge"))
 }
