@@ -73,7 +73,12 @@ func TestPutGet(t *testing.T) {
 	name := "Sophie"
 
 	cont = &Ent{Age: age, Name: name}
-	if d.Put(d.NameKey(key), cont); cont.Name != name || cont.Age != age {
+
+	if _, err := d.Put(d.NameKey(key), cont); err != nil {
+		t.Errorf("Failed to put: %s", err)
+
+	}
+	if cont.Name != name || cont.Age != age {
 		t.Errorf("Expected the same values, got %+v.", cont)
 
 	}
