@@ -27,7 +27,7 @@ func RefreshDStore(d *DStore) {
 }
 
 func TestCtxCan(t *testing.T) {
-	d := DStore{timeout: 100}
+	d := DStore{timeout: 500}
 
 	ctx, can := d.ctxCan()
 
@@ -40,7 +40,7 @@ func TestNewDStore(t *testing.T) {
 
 	prj := "test"
 	kind := "kind"
-	timeout := 100
+	timeout := 500
 
 	d := NewDStore(prj, kind, timeout)
 
@@ -56,7 +56,7 @@ func TestNewDStore(t *testing.T) {
 func TestPutGet(t *testing.T) {
 	prj := "test"
 	kind := "kind"
-	timeout := 1000
+	timeout := 500
 
 	d := NewDStore(prj, kind, timeout)
 	defer RefreshDStore(&d)
@@ -98,7 +98,7 @@ func TestPutGet(t *testing.T) {
 func TestCreateDelete(t *testing.T) {
 	prj := "test"
 	kind := "kind"
-	timeout := 100
+	timeout := 500
 
 	d := NewDStore(prj, kind, timeout)
 	defer RefreshDStore(&d)
@@ -125,7 +125,9 @@ func TestCreateDelete(t *testing.T) {
 
 	}
 
-	d.Delete(key)
+	if err := d.Delete(key); err != nil {
+		t.Errorf("Failed to delete: %s.", err)
+	}
 
 	cont = &Ent{}
 	if d.Get(key, cont); cont.Name != "" || cont.Age != 0 {
@@ -137,7 +139,7 @@ func TestCreateDelete(t *testing.T) {
 
 func TestCheckKey(t *testing.T) {
 	prj := "test"
-	timeout := 100
+	timeout := 500
 
 	dA := NewDStore(prj, "kindA", timeout)
 	defer RefreshDStore(&dA)
