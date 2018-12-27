@@ -37,6 +37,17 @@ func TestCtxCan(t *testing.T) {
 	}
 }
 
+func TestSetKind(t *testing.T) {
+	d := DStore{}
+	kind := "kind"
+
+	d.SetKind(kind)
+
+	if d.kind != kind {
+		t.Errorf("Expected %s, got %s.", kind, d.kind)
+	}
+}
+
 func TestNewDStore(t *testing.T) {
 
 	prj := "test"

@@ -33,6 +33,10 @@ func NewDStore(prj, kind string, timeout int) DStore {
 	return DStore{prj: prj, timeout: timeout, client: *client, kind: kind}
 }
 
+func (d *DStore) SetKind(kind string) {
+	d.kind = kind
+}
+
 func (d *DStore) NameKey(key string) *datastore.Key {
 	return datastore.NameKey(d.kind, key, nil)
 }
