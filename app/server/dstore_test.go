@@ -54,7 +54,8 @@ func TestNewDStore(t *testing.T) {
 	kind := "kind"
 	timeout := 500
 
-	d := NewDStore(prj, kind, timeout)
+	d := NewDStore(prj, timeout)
+	d.SetKind(kind)
 
 	if d.prj != prj {
 		t.Errorf("Expected %s, got %s.", prj, d.prj)
@@ -70,8 +71,9 @@ func TestPutGet(t *testing.T) {
 	kind := "kind"
 	timeout := 500
 
-	d := NewDStore(prj, kind, timeout)
+	d := NewDStore(prj, timeout)
 	defer RefreshDStore(&d)
+	d.SetKind(kind)
 
 	type Ent struct {
 		Name string
@@ -112,8 +114,9 @@ func TestCreateDelete(t *testing.T) {
 	kind := "kind"
 	timeout := 500
 
-	d := NewDStore(prj, kind, timeout)
+	d := NewDStore(prj, timeout)
 	defer RefreshDStore(&d)
+	d.SetKind(kind)
 
 	type Ent struct {
 		Name string
@@ -153,10 +156,13 @@ func TestCheckKey(t *testing.T) {
 	prj := "test"
 	timeout := 500
 
-	dA := NewDStore(prj, "kindA", timeout)
+	dA := NewDStore(prj, timeout)
 	defer RefreshDStore(&dA)
-	dB := NewDStore(prj, "kindB", timeout)
+	dA.SetKind("kindA")
+
+	dB := NewDStore(prj, timeout)
 	defer RefreshDStore(&dB)
+	dB.SetKind("kindB")
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -171,8 +177,10 @@ func TestQuery(t *testing.T) {
 	prj := "test"
 	timeout := 500
 	kind := "kind"
-	d := NewDStore(prj, kind, timeout)
+
+	d := NewDStore(prj, timeout)
 	defer RefreshDStore(&d)
+	d.SetKind(kind)
 
 	type Ent struct {
 		Name string
