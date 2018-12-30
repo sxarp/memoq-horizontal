@@ -48,9 +48,9 @@ func (d *DStore) checkKey(key *datastore.Key) {
 	}
 }
 
-//func (d *DStore) IDKey(id int64) *datastore.Key {
-//return datastore.IDKey(d.kind, id, nil)
-//}
+func (d *DStore) IDKey(id int64) *datastore.Key {
+	return datastore.IDKey(d.kind, id, nil)
+}
 
 func (d *DStore) Get(key *datastore.Key, container interface{}) error {
 	d.checkKey(key)
