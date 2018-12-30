@@ -41,3 +41,37 @@ func TestSimpleModelSaveFindDestroy(t *testing.T) {
 
 	}
 }
+
+func TestSimpleModelAllWithLimit(t *testing.T) {
+	d := NewDStore("test", 500)
+
+	name := "Hinata"
+
+	for i := 0; i < 20; i++ {
+		(&Simple{Name: name, Age: i}).Save(d)
+
+	}
+
+	fetchNum := 5
+
+	s := []Simple{}
+	ss := Simples(s)
+
+	if err := (&ss).AllWithLimit(d, fetchNum); err != nil {
+		t.Errorf("Failed to exec AllWithLimit: %s.", err)
+	}
+
+	if length := len(ss); length != fetchNum {
+		t.Errorf("Expected length is %d, got %d.", fetchNum, length)
+	}
+
+	for i := 0; i < fetchNum; i++ {
+		if reflect.DeepEqual(Simple{}, ss[i]) {
+			t.Errorf("Got unexpected zero values: %v.", ss)
+		}
+
+	}
+
+	(&Simple{}).SetKind(d)
+	RefreshDStore(d)
+}
