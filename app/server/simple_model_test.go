@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestSimpleModelSaveFind(t *testing.T) {
+func TestSimpleModelSaveFindDestroy(t *testing.T) {
 
 	d := NewDStore("test", 500)
 
@@ -28,5 +28,16 @@ func TestSimpleModelSaveFind(t *testing.T) {
 
 	if !reflect.DeepEqual(s, ss) {
 		t.Errorf("Expected %v, got %v.", s, ss)
+	}
+
+	(&Simple{}).Destroy(d, key)
+
+	ss = Simple{}
+
+	if err := ss.Find(d, key); err == nil {
+		t.Errorf("Expecred error, nothing raised.")
+	} else if !reflect.DeepEqual(ss, Simple{}) {
+		t.Errorf("Expected empty struct, got %v.", ss)
+
 	}
 }

@@ -11,6 +11,7 @@ type Repo interface {
 	SetKind(string)
 	Create(interface{}) (*datastore.Key, error)
 	Get(*datastore.Key, interface{}) error
+	Delete(*datastore.Key) error
 }
 
 func (s *Simple) SetKind(r Repo) {
@@ -29,4 +30,10 @@ func (s *Simple) Find(r Repo, k *datastore.Key) error {
 	s.SetKind(r)
 
 	return r.Get(k, s)
+}
+
+func (s *Simple) Destroy(r Repo, k *datastore.Key) error {
+	s.SetKind(r)
+
+	return r.Delete(k)
 }
