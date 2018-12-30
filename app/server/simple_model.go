@@ -14,6 +14,7 @@ type Repo interface {
 	Delete(*datastore.Key) error
 	NewQuery() *datastore.Query
 	GetAll(*datastore.Query, interface{}) ([]*datastore.Key, error)
+	IDKey(int64) *datastore.Key
 }
 
 func (s *Simple) SetKind(r Repo) {
@@ -21,21 +22,36 @@ func (s *Simple) SetKind(r Repo) {
 
 }
 
-func (s *Simple) Save(r Repo) (*datastore.Key, error) {
+func (s *Simple) IDKey(r Repo, id int) *datastore.Key {
+	s.SetKind(r)
+
+	return r.IDKey(int64(id))
+}
+
+func (s *Simple) Save(r Repo) (int, error) {
 	s.SetKind(r)
 
 	key, err := r.Create(s)
-	return key, err
+
+	if err != nil {
+		return 0, err
+
+	}
+
+	return int(key.ID), nil
 }
 
-func (s *Simple) Find(r Repo, k *datastore.Key) error {
+func (s *Simple) Find(r Repo, id int) error {
 	s.SetKind(r)
+
+	k := s.IDKey(r, id)
 
 	return r.Get(k, s)
 }
 
-func (s *Simple) Destroy(r Repo, k *datastore.Key) error {
+func (s *Simple) Destroy(r Repo, id int) error {
 	s.SetKind(r)
+	k := s.IDKey(r, id)
 
 	return r.Delete(k)
 }

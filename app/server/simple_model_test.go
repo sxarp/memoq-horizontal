@@ -16,7 +16,7 @@ func TestSimpleModelSaveFindDestroy(t *testing.T) {
 	s.SetKind(d)
 	defer RefreshDStore(d)
 
-	key, err := s.Save(d)
+	id, err := s.Save(d)
 
 	if err != nil {
 		t.Errorf("Failed to save: %v.", err)
@@ -24,17 +24,17 @@ func TestSimpleModelSaveFindDestroy(t *testing.T) {
 
 	ss := Simple{}
 
-	ss.Find(d, key)
+	ss.Find(d, id)
 
 	if !reflect.DeepEqual(s, ss) {
 		t.Errorf("Expected %v, got %v.", s, ss)
 	}
 
-	(&Simple{}).Destroy(d, key)
+	(&Simple{}).Destroy(d, id)
 
 	ss = Simple{}
 
-	if err := ss.Find(d, key); err == nil {
+	if err := ss.Find(d, id); err == nil {
 		t.Errorf("Expecred error, nothing raised.")
 	} else if !reflect.DeepEqual(ss, Simple{}) {
 		t.Errorf("Expected empty struct, got %v.", ss)
