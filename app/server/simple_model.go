@@ -3,8 +3,8 @@ package main
 import "cloud.google.com/go/datastore"
 
 type Simple struct {
-	Name string
-	Age  int
+	Name string `json:"name"`
+	Age  int    `json: "age"`
 }
 
 type Repo interface {

@@ -9,6 +9,7 @@ import (
 
 type server struct {
 	router *mux.Router
+	repo   Repo
 }
 
 func (s *server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
@@ -30,6 +31,7 @@ func main() {
 
 	srv := server{
 		router: mux.NewRouter(),
+		repo:   NewDStore("prj", 5000),
 	}
 
 	srv.routes()
