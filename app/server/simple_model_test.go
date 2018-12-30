@@ -7,8 +7,7 @@ import (
 
 func TestSimpleModelSaveFind(t *testing.T) {
 
-	ds := NewDStore("test", 500)
-	d := &ds
+	d := NewDStore("test", 500)
 
 	name := "Akari"
 	age := 16

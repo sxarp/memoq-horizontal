@@ -72,7 +72,7 @@ func TestPutGet(t *testing.T) {
 	timeout := 500
 
 	d := NewDStore(prj, timeout)
-	defer RefreshDStore(&d)
+	defer RefreshDStore(d)
 	d.SetKind(kind)
 
 	type Ent struct {
@@ -115,7 +115,7 @@ func TestCreateDelete(t *testing.T) {
 	timeout := 500
 
 	d := NewDStore(prj, timeout)
-	defer RefreshDStore(&d)
+	defer RefreshDStore(d)
 	d.SetKind(kind)
 
 	type Ent struct {
@@ -157,11 +157,11 @@ func TestCheckKey(t *testing.T) {
 	timeout := 500
 
 	dA := NewDStore(prj, timeout)
-	defer RefreshDStore(&dA)
+	defer RefreshDStore(dA)
 	dA.SetKind("kindA")
 
 	dB := NewDStore(prj, timeout)
-	defer RefreshDStore(&dB)
+	defer RefreshDStore(dB)
 	dB.SetKind("kindB")
 
 	defer func() {
@@ -179,7 +179,7 @@ func TestQuery(t *testing.T) {
 	kind := "kind"
 
 	d := NewDStore(prj, timeout)
-	defer RefreshDStore(&d)
+	defer RefreshDStore(d)
 	d.SetKind(kind)
 
 	type Ent struct {

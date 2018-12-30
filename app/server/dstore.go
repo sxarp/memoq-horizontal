@@ -22,7 +22,7 @@ func (d *DStore) ctxCan() (context.Context, context.CancelFunc) {
 	return ctx, cancel
 }
 
-func NewDStore(prj string, timeout int) DStore {
+func NewDStore(prj string, timeout int) *DStore {
 
 	client, err := datastore.NewClient(context.Background(), prj)
 
@@ -30,7 +30,7 @@ func NewDStore(prj string, timeout int) DStore {
 		panic("Failed to create DataStore client.")
 	}
 
-	return DStore{prj: prj, timeout: timeout, client: *client}
+	return &DStore{prj: prj, timeout: timeout, client: *client}
 }
 
 func (d *DStore) SetKind(kind string) {
