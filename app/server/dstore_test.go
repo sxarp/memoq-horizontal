@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -36,13 +37,25 @@ func TestCtxCan(t *testing.T) {
 	}
 }
 
+func TestSetKind(t *testing.T) {
+	d := DStore{}
+	kind := "kind"
+
+	d.SetKind(kind)
+
+	if d.kind != kind {
+		t.Errorf("Expected %s, got %s.", kind, d.kind)
+	}
+}
+
 func TestNewDStore(t *testing.T) {
 
 	prj := "test"
 	kind := "kind"
 	timeout := 500
 
-	d := NewDStore(prj, kind, timeout)
+	d := NewDStore(prj, timeout)
+	d.SetKind(kind)
 
 	if d.prj != prj {
 		t.Errorf("Expected %s, got %s.", prj, d.prj)
@@ -58,8 +71,9 @@ func TestPutGet(t *testing.T) {
 	kind := "kind"
 	timeout := 500
 
-	d := NewDStore(prj, kind, timeout)
-	defer RefreshDStore(&d)
+	d := NewDStore(prj, timeout)
+	defer RefreshDStore(d)
+	d.SetKind(kind)
 
 	type Ent struct {
 		Name string
@@ -100,8 +114,9 @@ func TestCreateDelete(t *testing.T) {
 	kind := "kind"
 	timeout := 500
 
-	d := NewDStore(prj, kind, timeout)
-	defer RefreshDStore(&d)
+	d := NewDStore(prj, timeout)
+	defer RefreshDStore(d)
+	d.SetKind(kind)
 
 	type Ent struct {
 		Name string
@@ -141,10 +156,13 @@ func TestCheckKey(t *testing.T) {
 	prj := "test"
 	timeout := 500
 
-	dA := NewDStore(prj, "kindA", timeout)
-	defer RefreshDStore(&dA)
-	dB := NewDStore(prj, "kindB", timeout)
-	defer RefreshDStore(&dB)
+	dA := NewDStore(prj, timeout)
+	defer RefreshDStore(dA)
+	dA.SetKind("kindA")
+
+	dB := NewDStore(prj, timeout)
+	defer RefreshDStore(dB)
+	dB.SetKind("kindB")
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -153,4 +171,47 @@ func TestCheckKey(t *testing.T) {
 	}()
 
 	dA.checkKey(dB.NameKey("hoge"))
+}
+
+func TestQuery(t *testing.T) {
+	prj := "test"
+	timeout := 500
+	kind := "kind"
+
+	d := NewDStore(prj, timeout)
+	defer RefreshDStore(d)
+	d.SetKind(kind)
+
+	type Ent struct {
+		Name string
+		Age  int
+	}
+
+	createNum := 27
+
+	for i := 0; i < createNum; i++ {
+		cont := &Ent{Name: fmt.Sprintf("name %d", i)}
+		if _, err := d.Create(cont); err != nil {
+			t.Errorf("Failed to create: %s.", err)
+		}
+	}
+
+	q := d.NewQuery().KeysOnly()
+
+	if keys, err := d.GetAll(q, nil); err != nil {
+		t.Errorf("Failed to GetAll: %s.", err)
+	} else if len(keys) == 0 { // Datasotre only offers eventual consistency.
+		t.Errorf("Expected non zero length.")
+	}
+
+	fetchNum := 5
+	q = d.NewQuery().Limit(fetchNum)
+	dst := []Ent{}
+
+	if _, err := d.GetAll(q, &dst); err != nil {
+		t.Errorf("Failed to GetAll: %s.", err)
+
+	} else if length := len(dst); length != fetchNum {
+		t.Errorf("Expected length is %d, got %d.", fetchNum, length)
+	}
 }

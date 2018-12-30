@@ -22,7 +22,7 @@ func (d *DStore) ctxCan() (context.Context, context.CancelFunc) {
 	return ctx, cancel
 }
 
-func NewDStore(prj, kind string, timeout int) DStore {
+func NewDStore(prj string, timeout int) *DStore {
 
 	client, err := datastore.NewClient(context.Background(), prj)
 
@@ -30,7 +30,11 @@ func NewDStore(prj, kind string, timeout int) DStore {
 		panic("Failed to create DataStore client.")
 	}
 
-	return DStore{prj: prj, timeout: timeout, client: *client, kind: kind}
+	return &DStore{prj: prj, timeout: timeout, client: *client}
+}
+
+func (d *DStore) SetKind(kind string) {
+	d.kind = kind
 }
 
 func (d *DStore) NameKey(key string) *datastore.Key {
@@ -86,4 +90,17 @@ func (d *DStore) Delete(key *datastore.Key) error {
 	defer cancel()
 
 	return d.client.Delete(ctx, key)
+}
+
+func (d *DStore) NewQuery() *datastore.Query {
+	return datastore.NewQuery(d.kind)
+}
+
+func (d *DStore) GetAll(q *datastore.Query, dst interface{}) ([]*datastore.Key, error) {
+	ctx, cancel := d.ctxCan()
+	defer cancel()
+
+	keys, err := d.client.GetAll(ctx, q, dst)
+
+	return keys, err
 }
