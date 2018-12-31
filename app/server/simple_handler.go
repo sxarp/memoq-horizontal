@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 var errResp = map[string]string{"status": "error"}
@@ -36,5 +39,35 @@ func (s *server) simpleCreate() http.HandlerFunc {
 		}
 
 		ret = map[string]int{"id": id}
+	}
+}
+
+func (s *server) simpleShow() http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		var ret interface{} = nil
+
+		defer func() {
+			js, _ := json.Marshal(ret)
+			fmt.Fprintf(w, string(js))
+		}()
+
+		id, convErr := strconv.Atoi(mux.Vars(req)["id"])
+
+		if convErr != nil {
+			w.WriteHeader(400)
+			ret = errResp
+			return
+		}
+
+		sim := Simple{}
+		err := sim.Find(s.repo, id)
+
+		if err != nil {
+			w.WriteHeader(400)
+			ret = errResp
+			return
+		}
+
+		ret = sim
 	}
 }

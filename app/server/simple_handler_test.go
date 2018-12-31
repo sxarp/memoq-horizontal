@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -53,4 +54,41 @@ func TestSimpleHandlerCreate(t *testing.T) {
 		t.Errorf("Got invalid response: %s.", resBody)
 	}
 
+}
+
+func TestSimpleHandlerShow(t *testing.T) {
+
+	d := NewDStore("test", 1000)
+	(&Simple{}).SetKind(d)
+	defer RefreshDStore(d)
+
+	srv := genSrv(d)
+
+	s := Simple{
+		Name: "Ellie",
+		Age:  450,
+	}
+
+	id, err := s.Save(d)
+	if err != nil {
+		t.Errorf("Faild to save: %s.", err)
+	}
+
+	res := reqRes(srv, "GET", fmt.Sprintf("/simple/%d", id), "")
+
+	if code := res.Code; code != 200 {
+		t.Errorf("response code = %v != 200", code)
+	}
+
+	expected := genJson(&s)
+	if resBody := res.Body.String(); !reflect.DeepEqual(resBody, expected) {
+		t.Errorf("Expected %v, got %v.", expected, resBody)
+	}
+
+	// Error case.
+
+	res = reqRes(srv, "GET", "/simple/1234567", "")
+	if code := res.Code; code != 400 {
+		t.Errorf("response code = %v != 400", code)
+	}
 }
