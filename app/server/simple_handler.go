@@ -112,3 +112,33 @@ func (s *server) simpleDestroy() http.HandlerFunc {
 		ret = okResp
 	}
 }
+
+func (s *server) simpleIndex() http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+
+		status := 500
+		var ret interface{} = errResp
+		defer render(w, &status, &ret)
+
+		limit := 10 // Default limit.
+
+		if lims := req.FormValue("limit"); lims != "" {
+			var convErr error = nil
+			limit, convErr = strconv.Atoi(lims)
+			if convErr != nil {
+				status = 400
+				return
+			}
+		}
+
+		sim := []Simple{}
+		sims := Simples(sim)
+
+		if err := (&sims).AllWithLimit(s.repo, limit); err != nil {
+			return
+		}
+
+		status = 200
+		ret = sims
+	}
+}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"regexp"
@@ -93,7 +94,7 @@ func TestSimpleHandlerShow(t *testing.T) {
 	}
 }
 
-func TestSimpleHandlerDlete(t *testing.T) {
+func TestSimpleHandlerDelete(t *testing.T) {
 
 	d := NewDStore("test", 1000)
 	(&Simple{}).SetKind(d)
@@ -126,5 +127,53 @@ func TestSimpleHandlerDlete(t *testing.T) {
 
 	if code := res.Code; code != 204 {
 		t.Errorf("response code = %v != 204", code)
+	}
+}
+
+func TestSimpleHandlerIndex(t *testing.T) {
+
+	d := NewDStore("test", 1000)
+	(&Simple{}).SetKind(d)
+	defer RefreshDStore(d)
+
+	srv := genSrv(d)
+
+	createNum := 19
+
+	ss := make([]Simple, createNum)
+
+	for i := 0; i < createNum; i++ {
+		ss[i] = Simple{Age: i, Name: "Hinata"}
+		if _, err := ss[i].Save(d); err != nil {
+			t.Errorf("Faild to save: %s.", err)
+		}
+	}
+
+	fetchNum := 11
+
+	// The case when limit is specified.
+	res := reqRes(srv, "GET", fmt.Sprintf("/simple?limit=%d", fetchNum), "")
+
+	if code := res.Code; code != 200 {
+		t.Errorf("response code = %v != 200", code)
+	}
+
+	js, _ := json.Marshal(ss[0:fetchNum])
+	expected := string(js)
+	if resBody := res.Body.String(); resBody != expected {
+		t.Errorf("Expected %v, got %v.", expected, resBody)
+	}
+
+	// The case when limit is NOT specified.
+	res = reqRes(srv, "GET", "/simple", "")
+
+	if code := res.Code; code != 200 {
+		t.Errorf("response code = %v != 200", code)
+	}
+
+	js, _ = json.Marshal(ss[0:10])
+	expected = string(js)
+	if resBody := res.Body.String(); resBody != expected {
+		t.Errorf("Expected %v, got %v.", expected, resBody)
 	}
 }
