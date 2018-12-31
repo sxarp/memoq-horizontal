@@ -28,7 +28,7 @@ func TestSimpleHandlerCreate(t *testing.T) {
 	res := reqRes(srv, "POST", "/simple", body)
 
 	if code := res.Code; code != 200 {
-		t.Errorf("response code = %v != 200", code)
+		t.Errorf("Response code = %v != 200.", code)
 	}
 
 	resBody := res.Body.String()
@@ -47,7 +47,7 @@ func TestSimpleHandlerCreate(t *testing.T) {
 	res = reqRes(srv, "POST", "/simple", "some rondom message")
 
 	if code := res.Code; code != 400 {
-		t.Errorf("response code = %v != 400", code)
+		t.Errorf("Response code = %v != 400.", code)
 	}
 
 	resBody = res.Body.String()
@@ -78,7 +78,7 @@ func TestSimpleHandlerShow(t *testing.T) {
 	res := reqRes(srv, "GET", fmt.Sprintf("/simple/%d", id), "")
 
 	if code := res.Code; code != 200 {
-		t.Errorf("response code = %v != 200", code)
+		t.Errorf("Response code = %v != 200.", code)
 	}
 
 	expected := genJson(&s)
@@ -90,7 +90,7 @@ func TestSimpleHandlerShow(t *testing.T) {
 
 	res = reqRes(srv, "GET", "/simple/1234567", "")
 	if code := res.Code; code != 400 {
-		t.Errorf("response code = %v != 400", code)
+		t.Errorf("Response code = %v != 400.", code)
 	}
 }
 
@@ -115,7 +115,7 @@ func TestSimpleHandlerDelete(t *testing.T) {
 	res := reqRes(srv, "DELETE", fmt.Sprintf("/simple/%d", id), "")
 
 	if code := res.Code; code != 200 {
-		t.Errorf("response code = %v != 200", code)
+		t.Errorf("Response code = %v != 200.", code)
 	}
 
 	if err := (&Simple{}).Find(d, id); err.Error() != "datastore: no such entity" {
@@ -126,7 +126,7 @@ func TestSimpleHandlerDelete(t *testing.T) {
 	res = reqRes(srv, "DELETE", fmt.Sprintf("/simple/%d", 12234), "")
 
 	if code := res.Code; code != 204 {
-		t.Errorf("response code = %v != 204", code)
+		t.Errorf("Response code = %v != 204.", code)
 	}
 }
 
@@ -155,7 +155,7 @@ func TestSimpleHandlerIndex(t *testing.T) {
 	res := reqRes(srv, "GET", fmt.Sprintf("/simple?limit=%d", fetchNum), "")
 
 	if code := res.Code; code != 200 {
-		t.Errorf("response code = %v != 200", code)
+		t.Errorf("Response code = %v != 200.", code)
 	}
 
 	js, _ := json.Marshal(ss[0:fetchNum])
@@ -168,7 +168,7 @@ func TestSimpleHandlerIndex(t *testing.T) {
 	res = reqRes(srv, "GET", "/simple", "")
 
 	if code := res.Code; code != 200 {
-		t.Errorf("response code = %v != 200", code)
+		t.Errorf("Response code = %v != 200.", code)
 	}
 
 	js, _ = json.Marshal(ss[0:10])
