@@ -44,6 +44,8 @@ func TestSimpleModelSaveFindDestroy(t *testing.T) {
 
 func TestSimpleModelAllWithLimit(t *testing.T) {
 	d := NewDStore("test", 500)
+	(&Simple{}).SetKind(d)
+	RefreshDStore(d)
 
 	name := "Hinata"
 
@@ -72,6 +74,15 @@ func TestSimpleModelAllWithLimit(t *testing.T) {
 
 	}
 
-	(&Simple{}).SetKind(d)
-	RefreshDStore(d)
+	// The case: fetchNum > createNum.
+	fetchNum := 33
+	s = []Simple{}
+	ss = Simples(s)
+	if err := (&ss).AllWithLimit(d, fetchNum); err != nil {
+		t.Errorf("Failed to exec AllWithLimit: %s.", err)
+	}
+
+	if length := len(ss); length != createNum {
+		t.Errorf("Expected length is %d, got %d.", createNum, length)
+	}
 }
