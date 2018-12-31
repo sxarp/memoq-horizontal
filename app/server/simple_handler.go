@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func render(w http.ResponseWriter, status *int, ret interface{}) {
+func render(w http.ResponseWriter, status *int, ret *interface{}) {
 	w.WriteHeader(*status)
 	js, _ := json.Marshal(ret)
 	fmt.Fprintf(w, string(js))
@@ -20,19 +20,17 @@ var okResp = map[string]string{"status": "ok"}
 
 func (s *server) simpleCreate() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		var ret interface{} = nil
 
-		defer func() {
-			js, _ := json.Marshal(ret)
-			fmt.Fprintf(w, string(js))
-		}()
+		status := 500
+		var ret interface{} = errResp
+		defer render(w, &status, &ret)
 
 		r := &Request{req}
 
 		sim := &Simple{}
 
 		if err := r.JsonBody(sim); err != nil {
-			w.WriteHeader(400)
+			status = 400
 			ret = errResp
 			return
 		}
@@ -40,29 +38,27 @@ func (s *server) simpleCreate() http.HandlerFunc {
 		id, err := sim.Save(Repo(s.repo))
 
 		if err != nil {
-			w.WriteHeader(500)
+			status = 500
 			ret = errResp
 			return
 		}
 
+		status = 200
 		ret = map[string]int{"id": id}
 	}
 }
 
 func (s *server) simpleShow() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		var ret interface{} = nil
 
-		defer func() {
-			js, _ := json.Marshal(ret)
-			fmt.Fprintf(w, string(js))
-		}()
+		status := 500
+		var ret interface{} = errResp
+		defer render(w, &status, &ret)
 
 		id, convErr := strconv.Atoi(mux.Vars(req)["id"])
 
 		if convErr != nil {
-			w.WriteHeader(400)
-			ret = errResp
+			status = 400
 			return
 		}
 
@@ -70,11 +66,15 @@ func (s *server) simpleShow() http.HandlerFunc {
 		err := sim.Find(s.repo, id)
 
 		if err != nil {
-			w.WriteHeader(400)
-			ret = errResp
+			if err.Error() == "datastore: no such entity" {
+				status = 400
+				return
+
+			}
 			return
 		}
 
+		status = 200
 		ret = sim
 	}
 }
@@ -84,7 +84,7 @@ func (s *server) simpleDestroy() http.HandlerFunc {
 
 		status := 500
 		var ret interface{} = errResp
-		defer render(w, &status, ret)
+		defer render(w, &status, &ret)
 
 		id, convErr := strconv.Atoi(mux.Vars(req)["id"])
 
