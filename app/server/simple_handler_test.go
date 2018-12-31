@@ -24,7 +24,7 @@ func TestSimpleHandlerCreate(t *testing.T) {
 	// Normal case.
 	body := genJson(&s)
 
-	res := reqRes(srv, "POST", "/simple/create", body)
+	res := reqRes(srv, "POST", "/simple", body)
 
 	if code := res.Code; code != 200 {
 		t.Errorf("response code = %v != 200", code)
@@ -43,7 +43,7 @@ func TestSimpleHandlerCreate(t *testing.T) {
 	}
 
 	// Error case.
-	res = reqRes(srv, "POST", "/simple/create", "some rondom message")
+	res = reqRes(srv, "POST", "/simple", "some rondom message")
 
 	if code := res.Code; code != 400 {
 		t.Errorf("response code = %v != 400", code)
