@@ -92,3 +92,39 @@ func TestSimpleHandlerShow(t *testing.T) {
 		t.Errorf("response code = %v != 400", code)
 	}
 }
+
+func TestSimpleHandlerDlete(t *testing.T) {
+
+	d := NewDStore("test", 1000)
+	(&Simple{}).SetKind(d)
+	defer RefreshDStore(d)
+
+	srv := genSrv(d)
+
+	s := Simple{
+		Name: "Akari",
+		Age:  15,
+	}
+
+	id, err := s.Save(d)
+	if err != nil {
+		t.Errorf("Faild to save: %s.", err)
+	}
+
+	res := reqRes(srv, "DELETE", fmt.Sprintf("/simple/%d", id), "")
+
+	if code := res.Code; code != 200 {
+		t.Errorf("response code = %v != 200", code)
+	}
+
+	if err := (&Simple{}).Find(d, id); err.Error() != "datastore: no such entity" {
+		t.Errorf("Expected error not raised: %s.", err)
+	}
+
+	// No content case.
+	res = reqRes(srv, "DELETE", fmt.Sprintf("/simple/%d", 12234), "")
+
+	if code := res.Code; code != 204 {
+		t.Errorf("response code = %v != 204", code)
+	}
+}
