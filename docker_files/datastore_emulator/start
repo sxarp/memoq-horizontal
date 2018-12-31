@@ -1,5 +1,12 @@
 #!/bin/bash
 
-gcloud config set project hoge
+set -xue
 
-gcloud beta emulators datastore start --host-port=0.0.0.0:8081 # bind to 0.0.0.0, otherwise, cannot access from the outside of the container
+gcloud config set project hoge # It seems that I can use arbitrary project names.
+
+options=(
+    --host-port=0.0.0.0:8081 # Bind to 0.0.0.0, otherwise, cannot access from the outside of the container.
+    --consistency=1.0 # To make it easy to run unit tests.
+)
+
+gcloud beta emulators datastore start "${options[@]}"

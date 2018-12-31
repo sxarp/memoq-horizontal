@@ -204,14 +204,13 @@ func TestQuery(t *testing.T) {
 		t.Errorf("Expected non zero length.")
 	}
 
-	fetchNum := 5
-	q = d.NewQuery().Limit(fetchNum)
+	q = d.NewQuery().Limit(createNum)
 	dst := []Ent{}
 
 	if _, err := d.GetAll(q, &dst); err != nil {
 		t.Errorf("Failed to GetAll: %s.", err)
 
-	} else if length := len(dst); length != fetchNum {
-		t.Errorf("Expected length is %d, got %d.", fetchNum, length)
+	} else if length := len(dst); length != createNum {
+		t.Errorf("Expected length is %d, got %d.", createNum, length)
 	}
 }
