@@ -62,7 +62,8 @@ function main(){
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    echo "build image and push"
+    echo "Build image and push to gcr."
+    echo "Usage: ./docker_files/publish_image.sh go_gclound|datastore_emulator."
 
     main "$1"
 fi

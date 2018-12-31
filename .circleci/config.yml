@@ -8,7 +8,7 @@ references:
         password: $GOOGLE_AUTH
 
   - datastore_image: &datastore_image
-      image: gcr.io/memoq-backend/datastore-emulator:v1
+      image: gcr.io/memoq-backend/datastore-emulator:2.0
       auth:
         username: _json_key
         password: $GOOGLE_AUTH

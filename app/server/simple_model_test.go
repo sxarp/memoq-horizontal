@@ -47,27 +47,27 @@ func TestSimpleModelAllWithLimit(t *testing.T) {
 
 	name := "Hinata"
 
-	for i := 0; i < 20; i++ {
+	createNum := 21
+
+	for i := 0; i < createNum; i++ {
 		(&Simple{Name: name, Age: i}).Save(d)
 
 	}
 
-	fetchNum := 5
-
 	s := []Simple{}
 	ss := Simples(s)
 
-	if err := (&ss).AllWithLimit(d, fetchNum); err != nil {
+	if err := (&ss).AllWithLimit(d, createNum); err != nil {
 		t.Errorf("Failed to exec AllWithLimit: %s.", err)
 	}
 
-	if length := len(ss); length != fetchNum {
-		t.Errorf("Expected length is %d, got %d.", fetchNum, length)
+	if length := len(ss); length != createNum {
+		t.Errorf("Expected length is %d, got %d.", createNum, length)
 	}
 
-	for i := 0; i < fetchNum; i++ {
-		if reflect.DeepEqual(Simple{}, ss[i]) {
-			t.Errorf("Got unexpected zero values: %v.", ss)
+	for i := 0; i < createNum; i++ {
+		if expected := (Simple{Name: name, Age: i}); !reflect.DeepEqual(expected, ss[i]) {
+			t.Errorf("Expected %v, got %v.", expected, ss[i])
 		}
 
 	}
