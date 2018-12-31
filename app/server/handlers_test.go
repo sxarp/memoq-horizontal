@@ -24,9 +24,10 @@ func reqRes(srv *server, method, path, body string) *httptest.ResponseRecorder {
 	return writer
 }
 
-func genSrv() (srv *server) {
+func genSrv(repo Repo) (srv *server) {
 	srv = &server{
 		router: mux.NewRouter(),
+		repo:   repo,
 	}
 
 	srv.routes()
