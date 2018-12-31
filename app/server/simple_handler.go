@@ -22,15 +22,15 @@ func (s *server) simpleCreate() http.HandlerFunc {
 
 		r := &Request{req}
 
-		e := &Simple{}
+		sim := &Simple{}
 
-		if err := r.JsonBody(e); err != nil {
+		if err := r.JsonBody(sim); err != nil {
 			w.WriteHeader(400)
 			ret = errResp
 			return
 		}
 
-		id, err := e.Save(Repo(s.repo))
+		id, err := sim.Save(Repo(s.repo))
 
 		if err != nil {
 			w.WriteHeader(500)
