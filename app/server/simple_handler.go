@@ -21,8 +21,10 @@ var okResp = map[string]string{"status": "ok"}
 func (s *server) simpleCreate() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 
-		status := 500
-		var resp interface{} = errResp
+		var (
+			status int         = 500
+			resp   interface{} = errResp
+		)
 		defer render(w, &status, &resp)
 
 		r := &Request{req}
@@ -30,6 +32,7 @@ func (s *server) simpleCreate() http.HandlerFunc {
 		sim := &Simple{}
 
 		if err := r.JsonBody(sim); err != nil {
+			s.logger.Println(err)
 			status = 400
 			resp = errResp
 			return
@@ -38,6 +41,7 @@ func (s *server) simpleCreate() http.HandlerFunc {
 		id, err := sim.Save(Repo(s.repo))
 
 		if err != nil {
+			s.logger.Println(err)
 			status = 500
 			resp = errResp
 			return
@@ -66,6 +70,7 @@ func (s *server) simpleShow() http.HandlerFunc {
 		err := sim.Find(s.repo, id)
 
 		if err != nil {
+			s.logger.Println(err)
 			if err.Error() == "datastore: no such entity" {
 				status = 400
 				return
@@ -89,12 +94,14 @@ func (s *server) simpleDestroy() http.HandlerFunc {
 		id, convErr := strconv.Atoi(mux.Vars(req)["id"])
 
 		if convErr != nil {
+			s.logger.Println(convErr)
 			status = 400
 			return
 		}
 
 		if err := (&Simple{}).Find(s.repo, id); err != nil {
 			if err.Error() == "datastore: no such entity" {
+				s.logger.Println(err)
 				// No content
 				status = 204
 				resp = okResp
@@ -105,6 +112,7 @@ func (s *server) simpleDestroy() http.HandlerFunc {
 		}
 
 		if err := (&Simple{}).Destroy(s.repo, id); err != nil {
+			s.logger.Println(err)
 			return
 		}
 
@@ -126,6 +134,7 @@ func (s *server) simpleIndex() http.HandlerFunc {
 			var convErr error = nil
 			limit, convErr = strconv.Atoi(lims)
 			if convErr != nil {
+				s.logger.Println(convErr)
 				status = 400
 				return
 			}
@@ -135,6 +144,7 @@ func (s *server) simpleIndex() http.HandlerFunc {
 		sims := Simples(sim)
 
 		if err := (&sims).AllWithLimit(s.repo, limit); err != nil {
+			s.logger.Println(err)
 			return
 		}
 

@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -28,6 +30,9 @@ func genSrv(repo Repo) (srv *server) {
 	srv = &server{
 		router: mux.NewRouter(),
 		repo:   repo,
+		logger: log.New(ioutil.Discard, "logger: ", 0),
+		// For debugging.
+		// logger: log.New(os.Stdout, "logger: ", log.Llongfile|log.Lmicroseconds),
 	}
 
 	srv.routes()
