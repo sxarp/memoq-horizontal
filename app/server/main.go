@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -10,6 +12,7 @@ import (
 type server struct {
 	router *mux.Router
 	repo   Repo
+	logger *log.Logger
 }
 
 func (s *server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
@@ -32,6 +35,7 @@ func main() {
 	srv := server{
 		router: mux.NewRouter(),
 		repo:   NewDStore("prj", 5000),
+		logger: log.New(os.Stdout, "logger: ", log.Llongfile|log.Lmicroseconds),
 	}
 
 	srv.routes()

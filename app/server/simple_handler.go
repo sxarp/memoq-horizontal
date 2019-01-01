@@ -9,9 +9,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func render(w http.ResponseWriter, status *int, ret *interface{}) {
+func render(w http.ResponseWriter, status *int, resp *interface{}) {
+
+	// Set headers before calling WriteHeader(*status).
+	// https://golang.org/pkg/net/http/#ResponseWriter
+	// >Changing the header map after a call to WriteHeader (or
+	// >Write) has no effect
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
 	w.WriteHeader(*status)
-	js, _ := json.Marshal(ret)
+	js, _ := json.Marshal(resp)
 	fmt.Fprintf(w, string(js))
 }
 
@@ -21,30 +28,34 @@ var okResp = map[string]string{"status": "ok"}
 func (s *server) simpleCreate() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 
-		status := 500
-		var ret interface{} = errResp
-		defer render(w, &status, &ret)
+		var (
+			status int         = 500
+			resp   interface{} = errResp
+		)
+		defer render(w, &status, &resp)
 
 		r := &Request{req}
 
 		sim := &Simple{}
 
 		if err := r.JsonBody(sim); err != nil {
+			s.logger.Println(err)
 			status = 400
-			ret = errResp
+			resp = errResp
 			return
 		}
 
 		id, err := sim.Save(Repo(s.repo))
 
 		if err != nil {
+			s.logger.Println(err)
 			status = 500
-			ret = errResp
+			resp = errResp
 			return
 		}
 
 		status = 200
-		ret = map[string]int{"id": id}
+		resp = map[string]int{"id": id}
 	}
 }
 
@@ -52,8 +63,8 @@ func (s *server) simpleShow() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 
 		status := 500
-		var ret interface{} = errResp
-		defer render(w, &status, &ret)
+		var resp interface{} = errResp
+		defer render(w, &status, &resp)
 
 		id, convErr := strconv.Atoi(mux.Vars(req)["id"])
 
@@ -66,6 +77,7 @@ func (s *server) simpleShow() http.HandlerFunc {
 		err := sim.Find(s.repo, id)
 
 		if err != nil {
+			s.logger.Println(err)
 			if err.Error() == "datastore: no such entity" {
 				status = 400
 				return
@@ -75,7 +87,7 @@ func (s *server) simpleShow() http.HandlerFunc {
 		}
 
 		status = 200
-		ret = sim
+		resp = sim
 	}
 }
 
@@ -83,21 +95,23 @@ func (s *server) simpleDestroy() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 
 		status := 500
-		var ret interface{} = errResp
-		defer render(w, &status, &ret)
+		var resp interface{} = errResp
+		defer render(w, &status, &resp)
 
 		id, convErr := strconv.Atoi(mux.Vars(req)["id"])
 
 		if convErr != nil {
+			s.logger.Println(convErr)
 			status = 400
 			return
 		}
 
 		if err := (&Simple{}).Find(s.repo, id); err != nil {
 			if err.Error() == "datastore: no such entity" {
+				s.logger.Println(err)
 				// No content
 				status = 204
-				ret = okResp
+				resp = okResp
 				return
 
 			}
@@ -105,11 +119,12 @@ func (s *server) simpleDestroy() http.HandlerFunc {
 		}
 
 		if err := (&Simple{}).Destroy(s.repo, id); err != nil {
+			s.logger.Println(err)
 			return
 		}
 
 		status = 200
-		ret = okResp
+		resp = okResp
 	}
 }
 
@@ -117,8 +132,8 @@ func (s *server) simpleIndex() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 
 		status := 500
-		var ret interface{} = errResp
-		defer render(w, &status, &ret)
+		var resp interface{} = errResp
+		defer render(w, &status, &resp)
 
 		limit := 10 // Default limit.
 
@@ -126,6 +141,7 @@ func (s *server) simpleIndex() http.HandlerFunc {
 			var convErr error = nil
 			limit, convErr = strconv.Atoi(lims)
 			if convErr != nil {
+				s.logger.Println(convErr)
 				status = 400
 				return
 			}
@@ -135,10 +151,11 @@ func (s *server) simpleIndex() http.HandlerFunc {
 		sims := Simples(sim)
 
 		if err := (&sims).AllWithLimit(s.repo, limit); err != nil {
+			s.logger.Println(err)
 			return
 		}
 
 		status = 200
-		ret = sims
+		resp = sims
 	}
 }

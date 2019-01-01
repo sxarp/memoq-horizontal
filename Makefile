@@ -19,4 +19,6 @@ build:
 	$(GOCMD) build -o dest/server ./app/server
 
 run:
+	DATASTORE_EMULATOR_HOST=$(DATASTORE_EMULATOR_HOST) \
+	DATASTORE_PROJECT_ID=$(DATASTORE_PROJECT_ID) \
 	$(GOCMD) run $$(ls -1 $(d) | grep -v _test | awk '{print "'$(d)'/"$$1}') # $ make run d=app/server
