@@ -10,6 +10,13 @@ import (
 )
 
 func render(w http.ResponseWriter, status *int, resp *interface{}) {
+
+	// Set headers before calling WriteHeader(*status).
+	// https://golang.org/pkg/net/http/#ResponseWriter
+	// >Changing the header map after a call to WriteHeader (or
+	// >Write) has no effect
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
 	w.WriteHeader(*status)
 	js, _ := json.Marshal(resp)
 	fmt.Fprintf(w, string(js))
