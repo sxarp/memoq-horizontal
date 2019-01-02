@@ -22,3 +22,16 @@ spec:
             - name: http
               containerPort: {{ .Values.image.port }}
               protocol: TCP
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /auth/google_application_credentials.json
+            - name: HORIZONTAL_ENV
+              value: {{ .Values.image.env }}
+          volumeMounts:
+            - name: google-application-credentials
+              mountPath: /auth
+              readOnly: true
+      volumes:
+        - name: google-application-credentials
+          secret:
+            secretName: horizontal

@@ -10,3 +10,5 @@ image:
   repository: gcr.io/memoq-backend/horizontal
   tag: latest
   pullPolicy: IfNotPresent
+  googleApplicationCredentials: "Set some json value."
+  env: "staging"

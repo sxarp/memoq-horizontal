@@ -30,15 +30,43 @@ func (s *server) listen(port int) {
 	server.ListenAndServe()
 }
 
-func main() {
+func startDevServ() {
+	fmt.Println("Starting dev server...")
 
 	srv := server{
 		router: mux.NewRouter(),
-		repo:   NewDStore("prj", 5000),
+		repo:   NewDStore("prj", 50000),
 		logger: log.New(os.Stdout, "logger: ", log.Llongfile|log.Lmicroseconds),
 	}
 
 	srv.routes()
 
 	srv.listen(8080)
+}
+
+func startStgServ() {
+	fmt.Println("Starting stg server...")
+
+	srv := server{
+		router: mux.NewRouter(),
+		repo:   NewDStore("memoq-backend", 5000),
+		logger: log.New(os.Stdout, "logger: ", log.Llongfile|log.Lmicroseconds),
+	}
+
+	srv.routes()
+
+	srv.listen(8080)
+}
+
+func main() {
+	env := os.Getenv("HORIZONTAL_ENV")
+
+	switch env {
+	case "development":
+		startDevServ()
+	case "staging":
+		startStgServ()
+	default:
+		fmt.Printf("$HORIZONTAL_ENV='%s' is not valid, not started the server.", env)
+	}
 }
