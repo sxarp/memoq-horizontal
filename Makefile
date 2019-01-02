@@ -18,7 +18,7 @@ unit:
 build:
 	$(GOCMD) build -o dest/server ./app/server
 
-run:
+local:
 	DATASTORE_EMULATOR_HOST=$(DATASTORE_EMULATOR_HOST) \
 	DATASTORE_PROJECT_ID=$(DATASTORE_PROJECT_ID) \
-	$(GOCMD) run $$(ls -1 $(d) | grep -v _test | awk '{print "'$(d)'/"$$1}') # $ make run d=app/server
+	HORIZONTAL_ENV=development $(GOCMD) run $$(ls -1 app/server | grep -v _test | awk '{print "app/server/"$$1}')
